@@ -1,5 +1,6 @@
 package com.example.Todo_List.service;
 
+import com.example.Todo_List.exceptions.ApiRequestException;
 import com.example.Todo_List.model.TodoList;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,9 @@ public class TodoListService {
         this.lista = lista = new ArrayList<>();
     }
     public TodoList creaTarea (TodoList todoList){
+        if (todoList.getDescripcionTarea() ==null){
+            throw new ApiRequestException(" El parametro descripción es obligatorio");
+        }
         todoList.setIndice(lista.size()+1);
         this.lista.add(todoList);
         return todoList;
@@ -43,13 +47,13 @@ public class TodoListService {
         }
         return todoLista;
     }
-    throw  new RuntimeException("No se ha encontrado ninguna tarea con ese indice "+ id);
+    throw  new ApiRequestException("No se ha encontrado ninguna tarea con ese indice "+ id);
     }
   public TodoList detalleTarea(int id){
        Optional <TodoList> todo = this.lista.stream().filter(t -> t.getIndice()==id)
                .findFirst();
        if(todo.isEmpty()){
-       throw new RuntimeException("No se ha encontrado datos para esta tarea "+ id);
+       throw new ApiRequestException("No se ha encontrado datos para esta tarea "+ id);
        }
        return todo.get();
   }
@@ -59,7 +63,7 @@ public class TodoListService {
             this.lista.remove(existeTarea.get());
             return true;
         }
-        throw new RuntimeException("La tarea no existe, por favor verifique "+id);
+        throw new ApiRequestException("La tarea no existe, por favor verifique "+id);
   }
   public boolean actualizarTarea (int id, String descripcion, String min ){
       Optional<TodoList> existeTarea = this.lista.stream().filter(t -> t.getIndice()==id).findFirst();

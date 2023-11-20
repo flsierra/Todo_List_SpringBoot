@@ -12,7 +12,6 @@ import java.util.List;
 public class TodoListController {
     private TodoListService service;
     @Autowired
-
     public TodoListController(TodoListService service) {
         this.service = service;
     }
