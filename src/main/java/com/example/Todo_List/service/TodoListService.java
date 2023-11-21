@@ -17,7 +17,7 @@ public class TodoListService {
         this.lista = lista = new ArrayList<>();
     }
     public TodoList creaTarea (TodoList todoList){
-        if (todoList.getDescripcionTarea() ==null){
+        if (todoList.getDescripcionTarea() ==null || todoList.getDescripcionTarea().equals("")){
             throw new ApiRequestException(" El parametro descripción es obligatorio");
         }
         todoList.setIndice(lista.size()+1);
@@ -25,6 +25,9 @@ public class TodoListService {
         return todoList;
     }
     public List<TodoList> listarTareas(){
+        if(lista.isEmpty()){
+            throw new ApiRequestException("La lista esta vacia");
+        }
         return this.lista;
     }
     public List<TodoList> tareasCompletas(){
@@ -40,15 +43,14 @@ public class TodoListService {
         return filtroTareasincompletas;
     }
     public TodoList completarTarea(int id, String min){
-    for (TodoList todoLista: lista){
-        if (todoLista.getIndice()==id){
-            todoLista.setTiempoGastado(min);
-            todoLista.setEstadoTarea("Completada");
-        }
-        return todoLista;
-    }
-    throw  new ApiRequestException("No se ha encontrado ninguna tarea con ese indice "+ id);
-    }
+        Optional<TodoList> todoList = lista.stream().filter(l ->l.getIndice()==id).findFirst();
+            if (todoList.isPresent() && (todoList.get().getEstadoTarea() == "Pendiente")){
+                todoList.get().setEstadoTarea("Completada");
+                todoList.get().setTiempoGastado(min);
+                return todoList.get();
+            }
+        throw  new ApiRequestException("No se ha encontrado ninguna tarea con ese indice o ya se completo, verifique "+ id);
+  }
   public TodoList detalleTarea(int id){
        Optional <TodoList> todo = this.lista.stream().filter(t -> t.getIndice()==id)
                .findFirst();
